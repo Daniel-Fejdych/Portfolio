@@ -1,0 +1,5 @@
+BasicAutomation, 8, IN, SciencePack:2, OUT, BasicBelt
+
+AdvancedAutomation, 12, IN, SciencePack:3, REQUIRES, BasicAutomation, OUT, Assembler
+
+MegaIndustry, 20, IN, MegaSciencePack:3, REQUIRES, AdvancedAutomation, OUT, MegaFurnace, MegaAssembler

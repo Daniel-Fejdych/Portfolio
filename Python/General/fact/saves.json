@@ -1,0 +1,39 @@
+[
+    {
+        "objects": [
+            {
+                "template": "SmallBox",
+                "x": 0,
+                "y": 0,
+                "z": 0,
+                "tier": 1,
+                "inventory": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                ],
+                "state": "IDLE",
+                "state_reason": null
+            },
+            {
+                "template": "BasicBelt",
+                "x": 1,
+                "y": 0,
+                "z": 0,
+                "tier": 1,
+                "inventory": [
+                    null
+                ],
+                "state": "STARVED_INPUT",
+                "state_reason": "No input object",
+                "input_direction": 0,
+                "output_direction": 2,
+                "_input_progress": 0,
+                "_output_progress": 0
+            }
+        ],
+        "unlocked_names": []
+    }
+]

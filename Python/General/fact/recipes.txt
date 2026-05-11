@@ -1,0 +1,5 @@
+SmeltIron, 4, IN, IronOre:2, OUT, IronPlate:1
+SmeltCopper, 4, IN, CopperOre:2, OUT, CopperPlate:1
+SciencePackRecipe, 6, IN, tag:refined:2, OUT, SciencePack:1
+SteelRecipe, 6, IN, IronPlate:3, OUT, SteelPlate:1
+MegaScienceRecipe, 10, IN, SteelPlate:2, SciencePack:2, OUT, MegaSciencePack:1

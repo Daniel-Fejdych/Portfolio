@@ -1,0 +1,15 @@
+chair, 100
+couch, 200
+bed, 500
+tv, 1000
+radio, 50
+desk, 500
+table, 300
+cabinet, 400
+chest, 150
+drawer, 100
+shelf, 50
+toilet, 150
+bath, 400
+sink, 200
+shower, 300

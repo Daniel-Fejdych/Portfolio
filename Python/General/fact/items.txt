@@ -1,0 +1,10 @@
+IronOre, 100, raw, metal
+IronPlate, 100, refined, metal
+CopperOre, 100, raw, metal
+CopperPlate, 100, refined, metal
+SciencePack, 50, science
+Gear, 50, component, mechanical
+Wood, 100
+Stone, 200
+SteelPlate, 100, refined, metal
+MegaSciencePack, 20, science, advanced

@@ -1,0 +1,12 @@
+BOX, SmallBox, 5, 2
+BELT, BasicBelt, 2, 2
+PRODUCER, IronMiner, IronOre, 3, 2
+PRODUCER, CopperMiner, CopperOre, 3, 2
+CRAFTER, Furnace, 3, 2, SmeltIron;SmeltCopper, 2
+CRAFTER, Assembler, 4, 2, SciencePackRecipe, 2
+RESEARCHER, Lab, 3, BasicAutomation;AdvancedAutomation, 0, 2
+PRODUCER, MegaIronMiner, IronOre, 1, 3
+PRODUCER, MegaCopperMiner, CopperOre, 1, 3
+CRAFTER, MegaFurnace, 5, 3, SmeltIron;SmeltCopper;SteelRecipe, 3
+CRAFTER, MegaAssembler, 6, 3, SciencePackRecipe;MegaScienceRecipe, 3
+RESEARCHER, MegaLab, 6, BasicAutomation;AdvancedAutomation, 0, 3
