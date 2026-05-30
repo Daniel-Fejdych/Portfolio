@@ -9,4 +9,6 @@ This repository is split into segments, each of which includes a specific projec
 TBC
 
 ## Additional Information
-Any additional information will go here.
+Link to the Open-source AI based Werewolf Game I made as part of a group, acting as the group’s coordinator.
+https://github.com/Daniel-Fejdych/F20CA-Games-3.git
+
