@@ -12,3 +12,8 @@ TBC
 Link to the Open-source AI based Werewolf Game I made as part of a group, acting as the group’s coordinator:
 https://github.com/Daniel-Fejdych/F20CA-Games-3.git
 
+Link to another project I helped with, Focused on creating a smart home control system:
+https://github.com/Tomukas10/G5-soft-eng.git
+
+Link to my Dissertation project:
+Will upload after getting a final grade.
