@@ -1,0 +1,479 @@
+html {
+	/*Set general background colour to white*/
+	background-color:white;
+	font-family:consolas;
+
+}
+body {
+	/*to force browser to not add an auto margin*/
+	margin: 0;
+}
+/*Some fudging may be neccessary*/
+/*Header tags*/
+header {
+	display: grid;
+	grid-template-columns: 22% 40% 20% 20% ;
+	text-align:left;
+	color: white;
+	background-color:black;
+	padding: 1%;
+	margin:  0%;
+	z-index: 10;
+}
+a, u {
+  color:white;
+  
+}
+.header iframe{
+	height:28%;
+	width:100%;
+	border: none;
+	position:absolute;
+	background:transparent;
+	
+	z-index: 10;
+}
+.header iframe:hover{
+	height:75vh;
+	width:100%;
+	background:transparent;
+	z-index: 10;
+}
+.footer {
+	border: none;
+}
+.footer iframe{
+	height:20vh;
+	width:100%;
+	border: none;
+}
+img{
+	float: right;
+	margin: 3%;
+	position: absolute;
+	z-index: 0;
+}
+img.topright{
+	top:20%;
+	right:5%;
+}
+.phantom .middleright{
+	top:60%;
+	right:5%;
+}
+.phantom .bottomright{
+	top:110%;
+	right:5%;
+}
+.mixHeader{
+	top:40%;
+}
+/* Place the title */
+#flexHeader1 {
+	margin: 1%;
+	grid-column-start: 1;
+    grid-column-end: 2;
+}
+/* Place the navbar*/
+#flexHeader2 {
+	margin: 5% 0 0 1%;
+	grid-column-start: 2;
+    grid-column-end: 3;
+}
+/* Style the search box inside the navigation bar */
+#flexHeader3 {
+	grid-column-start: 4;
+	float: right;
+	padding: 0.6%;
+	border: none;
+	margin-top: 12.5%;
+	margin-bottom: 3.5%;
+	margin-right: 0;
+	font-size: 100%;
+	border-radius: 20px;
+	max-height: 20%;
+	max-width: 40%;
+}
+/*End of Header tags*/
+
+
+
+/*Generic divider*/
+div{
+	padding:0;
+}
+/*Unordered List*/
+ul {
+	text-align: center;
+	background-color: white;
+	list-style-type: none;
+}
+ul.info{
+	text-align:left;
+	list-style-type: circle;
+	z-index:-1;
+}
+
+/* This centers the table*/
+.menu table{
+	margin: auto;
+	table-layout: fixed;
+	width: 65%;
+	height: 100%;
+    border-spacing: 6vh 4vh;
+}
+/*Table Data*/
+.menu td, .menu td a {
+	padding:10vh 0vh 10vh 0vh;
+	border:1vh solid black;
+	text-align:center;
+	background-color: black;
+	transition: translate 1s;
+	color:white;
+	font-size:3vh;
+	font-family:consolas;
+	text-decoration-line: none;
+	text-decoration-color: white;
+	overflow: hidden;
+	border-radius: 15px;
+}
+.equiptable {
+	border-collapse: collapse;
+	margin:2% 0 0 2%;
+}
+.equiptable th, .equiptable td{
+	border:0.1vh solid;
+}
+.etable{
+	background-color: black;
+	color:white;
+	text-align:center;
+	margin-left:auto;
+	margin-right:auto;
+	border:1vh solid white;
+	font-family:consolas;
+}
+.etable td, .etable th{
+	background-color:black;
+	border:solid white;
+	border-collapse: collapse;
+}
+.etable td a{
+	text-decoration-line: none;
+}
+
+.menu td:hover {
+  translate:5%;
+}
+/* Add a black background color to the top navigation bar */
+.topnav, .dropdown .dropbutton {
+	overflow: hidden;
+	background-color: black;
+}
+/* Style the links inside the navigation bar */
+.topnav a,.dropdown .dropbutton {
+	border: none;
+	outline: none;
+	float: left;
+	font:inherit;
+	display: block;
+	color: white;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+	font-size: 100%;
+	transition: color 0.5s, background-color 0.5s;
+}
+.dropdown {
+  float: left;
+}
+
+/* Colour of the "hovered over" page*/
+.topnav a:hover, .dropdown .dropbutton:hover, .column a:hover, .dropdown-stuff .header:hover  {
+	background-color: #ddd;
+	color: black;
+	
+}
+
+/* Colour of the "active" page*/
+.topnav a.active, .dropdown .dropbutton .active {
+	background-color: white;
+	color: black;
+}
+
+.dropdown-stuff {
+  display: none;
+  position: absolute;
+  background-color: #ddd;
+  width: 100%;
+  left: 0;
+  z-index: 2;
+  top:16%;
+  height:30vh;
+}
+.dropdown-stuff .header {
+  padding:0.5%;
+  color: black;
+  height:60%;
+}
+.dropdown:hover .dropdown-stuff{
+  display: block;
+}
+/* creates columns for the dropdown */
+.column {
+  float: left;
+  width: 32%;
+  padding: 10px;
+  background-color: #eee;
+  height: 10%;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+.column a, .column h3 {
+  float: none;
+  color: black;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.info {
+	padding: 1.5%;
+}
+.infoHead{
+	padding:1%;
+}
+
+/* screen less than 600px wide->stack the links and the search field vertically instead of horizontally */
+/* Can add more of these!!!*/
+@media screen and (max-width: 600px) {
+	.topnav a, .topnav input[type=text] {
+		float: none;
+		display: block;
+		text-align: left;
+		width: 100%;
+		margin: 0;
+		padding: 1.4%;
+	}
+	/* Search box stuff*/
+	.topnav input[type=text] {
+		border: 1% solid #ccc;
+	}
+}
+/* Footer setup*/
+footer {
+	background-color:black;
+	color: white;
+	text-align: center;
+	font-size: 7vh;
+	padding: 1% 3% 7% 4%;
+	margin:  4% 0 0 0;
+}
+/* Start Contact CSS */
+
+#ContactInformation{
+	margin-left: 13%;		/* to be align with the ul style */
+}
+
+#h3BuyInformation {
+	text-align: center;
+}
+
+#ulBuyInformation {
+	display: grid;
+	grid-template-columns: repeat(20,5%) ;
+	grid-template-rows: 10% 20px 30% 20px 250px 20px 20% 80px;
+	text-align: left;
+}
+
+#OrderFormDownload {
+	grid-column-start:1 ;
+	grid-column-end: 20;
+	grid-row-start:1 ;
+	grid-row-end: 2;
+	text-align: center;
+}
+
+#PhoneOrder{
+	grid-column-start:3 ;
+	grid-column-end: 18;
+	grid-row-start:3 ;
+	grid-row-end: 4;
+	background-color: rgb(0, 0, 0);
+	color: white;
+	padding: 1vh;
+	border-radius: 1vh;
+	transition: translate 1s;
+}
+#PhoneOrder:hover {
+	translate: 5%;
+}
+
+/* Start of Mail CSS */
+
+#MailOrder {
+	grid-column-start:3 ;
+	grid-column-end: 18;
+	grid-row-start:5 ;
+	grid-row-end: 6;
+	background-color: rgb(0, 0, 0);
+	color: white;
+	padding: 1vh;
+	border-radius: 1vh;
+	transition: translate 1s;
+}
+
+#MailOrder:hover {
+	translate: 5%;
+}
+
+#MailOrderSub {
+	display: grid;
+	grid-template-columns: repeat(10,10%);
+	grid-template-rows: 90% 10%;
+}
+
+#MailOrderFirstText {
+	grid-column-start: 1;
+	grid-column-end: 5;
+	grid-row-start: 1;
+	grid-row-end: 2;
+}
+
+#OrderAddress {
+	grid-column-start: 5;
+	grid-column-end: 10;
+	grid-row-start: 1;
+	grid-row-end: 2;
+}
+
+#FreightCharges {
+	grid-column-start: 1;
+	grid-column-end: 10;
+	grid-row-start: 2;
+}
+
+/* End of Mail CSS */
+
+#EMailOrder {
+	grid-column-start:3 ;
+	grid-column-end: 9;
+	grid-row-start:7 ;
+	grid-row-end: 8;
+	background-color: rgb(0, 0, 0);
+	color: white;
+	padding: 1vh 0 2vh 1vh;
+	border-radius: 1vh;
+	transition: translate 1s;
+}
+#EMailOrder:hover {
+	translate: 10%;
+}
+
+#FaxOrder{
+	grid-column-start:11 ;
+	grid-column-end: 18;
+	grid-row-start:7 ;
+	grid-row-end: 8;
+	background-color: rgb(0, 0, 0);
+	color: white;
+	padding: 1vh 0 2vh 1vh;
+	border-radius: 1vh;
+	transition: translate 1s;
+}
+#FaxOrder:hover {
+	translate: 10%;
+}
+
+/* End Contact CSS */
+
+#mainAbout{
+	display: grid;
+	grid-template-columns: repeat(20,5%) ;
+	grid-template-rows: repeat(20,50px);
+	text-align: left;
+}
+
+#intro{
+	grid-column-start:2 ;
+	grid-column-end: 18;
+	grid-row-start:1 ;
+	grid-row-end: 3;
+}
+
+#noticeAbout{
+	grid-column-start:2 ;
+	grid-column-end: 18;
+	grid-row-start:4 ;
+	grid-row-end: 5;
+	text-align: center;
+}
+
+#ourCatalog{
+	grid-column-start:2 ;
+	grid-column-end: 9;
+	grid-row-start:5 ;
+	grid-row-end: 8;
+
+	background-color: rgb(0, 0, 0);
+	color: white;
+	padding: 1%;
+	border-radius: 15px;
+	transition: translate 1s;
+}
+#ourCatalog:hover{
+	translate: 5%;
+}
+
+#minOrder{
+	grid-column-start:11 ;
+	grid-column-end: 18;
+	grid-row-start:5 ;
+	grid-row-end: 8	;
+
+	background-color: rgb(0, 0, 0);
+	color: white;
+	padding: 10px;
+	border-radius: 15px;
+	transition: translate 1s;
+}
+#minOrder:hover{
+	translate: 5%;
+}
+
+#presentationAbout{
+	grid-column-start:2 ;
+	grid-column-end: 18;
+	grid-row-start:9 ;
+	grid-row-end: 15;
+
+	background-color: rgb(0, 0, 0);
+	color: white;
+	padding: 10px;
+	border-radius: 15px;
+	transition: translate 1s;
+}
+#presentationAbout:hover{
+	translate: 50px;
+}
+
+#risk{
+	grid-column-start:2 ;
+	grid-column-end: 18;
+	grid-row-start:16 ;
+	grid-row-end: 20;
+
+	background-color: rgb(0, 0, 0);
+	color: white;
+	padding: 10px;
+	border-radius: 15px;
+	transition: translate 1s;
+}
+#risk:hover{
+	translate: 50px;
+}
+

@@ -1,0 +1,38 @@
+function showMessage(message) {
+	alert(message);
+}
+function expandIframe(){
+	console.log("ddsdfgg");
+	document.getElementsByClassName('hIframe').classList.add("hov");
+}
+
+
+setTimeout(() => {
+if (window.name == "homeHead"){
+	var element = document.getElementById("home");
+    element.classList.add("active");
+}
+if (window.name == "contactHead"){
+	var element = document.getElementById("contact");
+    element.classList.add("active");
+}
+if (window.name == "equipmentHead"){
+	var element = document.getElementById("equipment");
+    element.classList.add("active");
+}
+if (window.name == "aboutHead"){
+	var element = document.getElementById("about");
+    element.classList.add("active");
+}
+
+}, 50);
+
+
+
+
+
+
+
+
+
+
