@@ -156,7 +156,7 @@ players.add_player(player1)
 players.add_player(player2)
 
 # Define the possible moves
-PAWN_MOVES = ((0, 1),)
+PAWN_MOVES = ((0, 1), (0, -1)) # temporarily allow paws to move backwards for both players to be able to work
 ORTHOGONAL = ((0, 1), (1, 0), (0, -1), (-1, 0))
 DIAGONAL = ((1, 1), (-1, -1), (1, -1), (-1, 1))
 KING_MOVES = ORTHOGONAL + DIAGONAL
@@ -208,13 +208,14 @@ print("Bob pieces:", pieces.get_num_pieces_of_player(player2))
 
 # Helper functions
 def get_piece_at(x, y):
+    piece: Piece
     for piece in pieces.pArray:
         if piece.x == x and piece.y == y:
             return piece
     return None
 
 
-def get_allowed_moves(piece):
+def get_allowed_moves(piece: Piece):
     moves = []
 
     for y in range(BOARD_SIZE):
