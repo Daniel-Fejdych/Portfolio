@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from math import cos, sin, tau
+
 import pygame
 import sys
 
@@ -10,8 +12,10 @@ class HexColor:
     green: int = 0
     blue: int = 0
 
+
 class Player:
     """Represents a player in the game."""
+
     def __init__(self, name: str, color: HexColor):
         self.name = name
         self.color = color
@@ -20,14 +24,17 @@ class Player:
         """Returns the color of the player."""
         return self.color
 
+
 class PlayerGroup:
     """Represents a group of players."""
+
     def __init__(self):
         self.players = []
 
     def add_player(self, player: Player) -> None:
         """Adds a player to the group."""
         self.players.append(player)
+
 
 @dataclass(frozen=True)
 class MP:
@@ -36,14 +43,17 @@ class MP:
     dy: int
     repeat: int = 0  # How many more times the piece can move in this direction
 
+
 @dataclass(frozen=True)
 class PieceType:
     """Represents a piece type."""
     name: str
     moves: tuple[MP, ...]
 
+
 class Piece:
     """Represents a piece."""
+
     def __init__(self, p_type: PieceType, player: Player, x, y):
         self.p_type = p_type
         self.player = player
@@ -53,8 +63,12 @@ class Piece:
     def can_move_to(self, x: int, y: int) -> bool:
         """Returns if the piece can be moved to the given coordinates."""
         for move in self.p_type.moves:
-            for rep in range(1, move.repeat + 2):
-                if self.x + rep * move.dx == x and self.y + rep * move.dy == y:
+            try:
+                for rep in range(1, move.repeat + 2):
+                    if self.x + rep * move.dx == x and self.y + rep * move.dy == y:
+                        return True
+            except TypeError:
+                if self.x + move.dx == x and self.y + move.dy == y:
                     return True
         return False
 
@@ -69,9 +83,11 @@ class Piece:
     def get_color(self) -> HexColor:
         """Returns the color of the piece."""
         return self.player.get_color()
-        
+
+
 class PieceGroup:
     """Represents all pieces."""
+
     def __init__(self):
         self.pArray = []
 
@@ -87,10 +103,10 @@ class PieceGroup:
         """Returns the number of pieces in the group."""
         return len(self.pArray)
 
-    def get_num_pieces_of_player(self, player:Player) -> int:
+    def get_num_pieces_of_player(self, player: Player) -> int:
         """Returns the number of pieces in the group belonging to the given player."""
         return len(list(filter(
-            lambda piece: piece.belongs_to_player(player),self.pArray)))
+            lambda piece: piece.belongs_to_player(player), self.pArray)))
 
     def render(self, screen: pygame.Surface) -> None:
         """Renders the group."""
@@ -99,23 +115,28 @@ class PieceGroup:
             center_y = piece.y * SQUARE_SIZE + SQUARE_SIZE // 2
 
             c = piece.player.get_color()
-
-            # Placeholder rendering:
-            # Draw a colored circle and the first letter.
+            col = (c.red, c.green, c.blue)
+            col_dark = tuple(v // 2 for v in (c.red, c.green, c.blue))
 
             radius = SQUARE_SIZE // 3
+            # Render the piece
+            for scale, color in (tuple((0.2 * m + 0.1, col) for m in range(7)) + ((1.5, col_dark),)):
+                pygame.draw.lines(
+                    screen,
+                    color,
+                    True,
+                    [
+                        (cos(i * tau / 6) * radius * scale + center_x,
+                         sin(i * tau / 6) * radius * scale + center_y)
+                        for i in range(6)
+                    ],
+                )
 
-            pygame.draw.circle(
-                screen,
-                (c.red, c.green, c.blue),
-                (center_x, center_y),
-                radius
-            )
-
+            # Render the piece name
             label = font.render(
                 piece.p_type.name.upper(),
                 True,
-                (0, 0, 0)
+                col_dark
             )
 
             label_rect = label.get_rect(
@@ -126,202 +147,58 @@ class PieceGroup:
 
 
 # Create two players with different colors
-player1 = Player("Alice", HexColor(red=255, green=0, blue=0))   # Red
-player2 = Player("Bob", HexColor(red=0, green=0, blue=255))     # Blue
+player1 = Player("Alice", HexColor(red=255, green=0, blue=0))  # Red
+player2 = Player("Bob", HexColor(red=0, green=0, blue=255))  # Blue
 
 # Create the player group
 players = PlayerGroup()
 players.add_player(player1)
 players.add_player(player2)
 
-# Define a pawn piece type
-pawn_type = PieceType(
-    name="Pawn",
-    moves=(MP(dx=0, dy=1),)
-)
-# Define a queen piece type
-queen_type = PieceType(
-    name="Queen",
-    moves=(MP(dx=0, dy=1, repeat=8), MP(dx=1, dy=0, repeat=8), MP(dx=1, dy=1, repeat=8),
-           MP(dx=0, dy=-1, repeat=8), MP(dx=-1, dy=0, repeat=8), MP(dx=-1, dy=-1, repeat=8),
-           MP(dx=1, dy=-1, repeat=8), MP(dx=-1, dy=1, repeat=8))
-)
+# Define the possible moves
+PAWN_MOVES = ((0, 1),)
+ORTHOGONAL = ((0, 1), (1, 0), (0, -1), (-1, 0))
+DIAGONAL = ((1, 1), (-1, -1), (1, -1), (-1, 1))
+KING_MOVES = ORTHOGONAL + DIAGONAL
+KNIGHT_VECTORS = ((1, 2), (2, 1), (-1, -2), (-2, -1),
+                  (-1, 2), (-2, 1), (1, -2), (2, -1))
 
-# Define a bishop piece type
-bishop_type = PieceType(
-    name="Bishop",
-    moves=(MP(dx=1, dy=1, repeat=8), MP(dx=-1, dy=-1, repeat=8),
-           MP(dx=1, dy=-1, repeat=8), MP(dx=-1, dy=1, repeat=8))
-)
 
-# Define a rook piece type
-rook_type = PieceType(
-    name="Rook",
-    moves=(MP(dx=0, dy=1, repeat=8), MP(dx=1, dy=0, repeat=8),
-           MP(dx=0, dy=-1, repeat=8), MP(dx=-1, dy=0, repeat=8))
-)
+def make_moves(vectors, repeat=None):
+    return tuple(MP(dx=dx, dy=dy, repeat=repeat) for dx, dy in vectors)
 
-# Define a knight piece type
-knight_type = PieceType(
-    name="Knight",
-    moves=(MP(dx=1, dy=2),MP(dx=2, dy=1), MP(dx=-1, dy=-2), MP(dx=-2, dy=-1),
-           MP(dx=-1, dy=2),MP(dx=-2, dy=1), MP(dx=1, dy=-2), MP(dx=2, dy=-1))
-)
 
-# Define a king piece type
-king_type = PieceType(
-    name="King",
-    moves=(MP(dx=0, dy=1), MP(dx=1, dy=0), MP(dx=1, dy=1),
-           MP(dx=0, dy=-1), MP(dx=-1, dy=0), MP(dx=-1, dy=-1),
-           MP(dx=1, dy=-1), MP(dx=-1, dy=1))
-)
+pawn_type = PieceType("Pawn", make_moves(PAWN_MOVES))
+queen_type = PieceType("Queen", make_moves(KING_MOVES, repeat=8))
+bishop_type = PieceType("Bishop", make_moves(DIAGONAL, repeat=8))
+rook_type = PieceType("Rook", make_moves(ORTHOGONAL, repeat=8))
+king_type = PieceType("King", make_moves(KING_MOVES))
+knight_type = PieceType("Knight", make_moves(KNIGHT_VECTORS))
 
 # Create the piece group
 pieces = PieceGroup()
 
-# Add 10 pieces for player1
-for i in range(10):
-    pieces.add_piece(
-        Piece(
-            p_type=pawn_type,
-            player=player1,
-            x=i,
-            y=1
+# Pawns
+for y, player in ((1, player1), (6, player2)):
+    for x in range(10):
+        pieces.add_piece(
+            Piece(p_type=pawn_type, player=player, x=x, y=y)
         )
-    )
 
-# Add 10 pieces for player2
-for i in range(10):
-    pieces.add_piece(
-        Piece(
-            p_type=pawn_type,
-            player=player2,
-            x=i,
-            y=6
-        )
-    )
-
-# Add 10 pieces for player1
-for i in range(10):
-    pieces.add_piece(
-        Piece(
-            p_type=pawn_type,
-            player=player1,
-            x=i,
-            y=1
-        )
-    )
-
-# Add 10 pieces for player2
-for i in range(10):
-    pieces.add_piece(
-        Piece(
-            p_type=pawn_type,
-            player=player2,
-            x=i,
-            y=6
-        )
-    )
-
-# Add the queen piece for player1
-    pieces.add_piece(
-        Piece(
-            p_type=queen_type,
-            player=player1,
-            x=4,
-            y=0
-        )
-    )
-
-# Add the queen piece for player2
-    pieces.add_piece(
-        Piece(
-            p_type=queen_type,
-            player=player2,
-            x=4,
-            y=7
-        )
-    )
-# Add the king piece for player1
-pieces.add_piece(
-    Piece(
-        p_type=king_type,
-        player=player1,
-        x=3,
-        y=0
-    )
-)
-
-# Add the king piece for player2
-pieces.add_piece(
-    Piece(
-        p_type=king_type,
-        player=player2,
-        x=3,
-        y=7
-    )
-)
-
-# Add the rook pieces
-for x in (0, 7):
-    pieces.add_piece(
-        Piece(
-            p_type=rook_type,
-            player=player1,
-            x=x,
-            y=0
-        )
-    )
-
-    pieces.add_piece(
-        Piece(
-            p_type=rook_type,
-            player=player2,
-            x=x,
-            y=7
-        )
-    )
-
-# Add the knight pieces
-for x in (1, 6):
-    pieces.add_piece(
-        Piece(
-            p_type=knight_type,
-            player=player1,
-            x=x,
-            y=0
-        )
-    )
-
-    pieces.add_piece(
-        Piece(
-            p_type=knight_type,
-            player=player2,
-            x=x,
-            y=7
-        )
-    )
-
-# Add the bishop pieces
-for x in (2, 5):
-    pieces.add_piece(
-        Piece(
-            p_type=bishop_type,
-            player=player1,
-            x=x,
-            y=0
-        )
-    )
-
-    pieces.add_piece(
-        Piece(
-            p_type=bishop_type,
-            player=player2,
-            x=x,
-            y=7
-        )
-    )
-
+# Other pieces
+starting_positions = {
+    rook_type: (0, 7),
+    knight_type: (1, 6),
+    bishop_type: (2, 5),
+    king_type: (3,),
+    queen_type: (4,),
+}
+for y, player in ((0, player1), (7, player2)):
+    for p_type, xs in starting_positions.items():
+        for x in xs:
+            pieces.add_piece(
+                Piece(p_type=p_type, player=player, x=x, y=y)
+            )
 
 # Verify
 print("Total players:", len(players.players))
@@ -329,6 +206,28 @@ print("Total pieces:", pieces.get_num_pieces())
 print("Alice pieces:", pieces.get_num_pieces_of_player(player1))
 print("Bob pieces:", pieces.get_num_pieces_of_player(player2))
 
+# Helper functions
+def get_piece_at(x, y):
+    for piece in pieces.pArray:
+        if piece.x == x and piece.y == y:
+            return piece
+    return None
+
+
+def get_allowed_moves(piece):
+    moves = []
+
+    for y in range(BOARD_SIZE):
+        for x in range(BOARD_SIZE):
+            if piece.can_move_to(x, y):
+                moves.append((x, y))
+
+    return moves
+
+
+# Selection state setup
+selected_piece = None
+allowed_moves = []
 
 
 # ----------------------------
@@ -343,8 +242,8 @@ MENU_WIDTH = 220
 WINDOW_WIDTH = BOARD_WIDTH + MENU_WIDTH
 WINDOW_HEIGHT = BOARD_WIDTH
 
-LIGHT_SQUARE = (240, 217, 181)
-DARK_SQUARE = (181, 136, 99)
+LIGHT_SQUARE = (238, 238, 210)
+DARK_SQUARE = (118, 150, 86)
 
 MENU_BG = (40, 40, 40)
 BUTTON_COLOR = (70, 70, 70)
@@ -356,6 +255,7 @@ screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Chess Board with Menu")
 
 font = pygame.font.SysFont(None, 30)
+
 
 
 # ----------------------------
@@ -448,7 +348,7 @@ for i, name in enumerate(button_names):
         )
     )
 
-
+pieces.render(screen)
 # ----------------------------
 # Main Loop
 # ----------------------------
@@ -463,6 +363,32 @@ while running:
         for button in buttons:
             button.handle_event(event)
 
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            mx, my = event.pos
+
+            # Ignore clicks in menu area
+            if mx < BOARD_WIDTH:
+                board_x = mx // SQUARE_SIZE
+                board_y = my // SQUARE_SIZE
+
+                # If a piece is selected, attempt move
+                if selected_piece:
+
+                    if (board_x, board_y) in allowed_moves:
+                        selected_piece.x = board_x
+                        selected_piece.y = board_y
+
+                    # Deselect regardless of whether move succeeded
+                    selected_piece = None
+                    allowed_moves = []
+
+                else:
+                    piece = get_piece_at(board_x, board_y)
+
+                    if piece:
+                        selected_piece = piece
+                        allowed_moves = get_allowed_moves(piece)
+
     # Background
     screen.fill((0, 0, 0))
 
@@ -471,7 +397,31 @@ while running:
 
     # Render pieces
     pieces.render(screen)
+    if selected_piece:
+        for mx, my in allowed_moves:
+            center = (
+                mx * SQUARE_SIZE + SQUARE_SIZE // 2,
+                my * SQUARE_SIZE + SQUARE_SIZE // 2,
+            )
 
+            pygame.draw.circle(
+                screen,
+                (0, 255, 0),
+                center,
+                SQUARE_SIZE // 8,
+            )
+    if selected_piece:
+        pygame.draw.rect(
+            screen,
+            (255, 255, 0),
+            (
+                selected_piece.x * SQUARE_SIZE,
+                selected_piece.y * SQUARE_SIZE,
+                SQUARE_SIZE,
+                SQUARE_SIZE,
+            ),
+            4,
+        )
     # Menu panel
     pygame.draw.rect(
         screen,
