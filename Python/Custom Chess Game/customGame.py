@@ -11,8 +11,8 @@ import sys
 # The board currently uses an 8x8 layout.
 # If a larger board is desired, piece starting
 # positions must also be updated.
-BOARD_SIZE = 8
-GENERAL_SIZE = 1
+BOARD_SIZE = 12
+GENERAL_SIZE = 0.6
 SQUARE_SIZE = 100 * GENERAL_SIZE
 
 BOARD_WIDTH = BOARD_SIZE * SQUARE_SIZE
@@ -32,16 +32,8 @@ MENU_FONT_SIZE = int(30 * GENERAL_SIZE)
 PIECE_FONT_SIZE = int(20 * GENERAL_SIZE)
 FONT_NAME = "Tahoma"
 
-class Game:
-    def __init__(self):
-        self.players = None
-        self.pieces = None
-
-        self.selected_piece = None
-        self.allowed_moves = None
-
-        self.screen = None
-        self.buttons = []
+MOVE_MARKER_COLOR = (0, 255, 0)
+SELECTION_COLOR = (255, 255, 0)
 
 @dataclass(frozen=True)
 class Color:
@@ -63,7 +55,7 @@ class Player:
     def get_rgb_color(self):
         return self.color.get_rgb_color()
 
-@dataclass(frozen=True)
+@dataclass
 class PlayerGroup:
     """Represents a group of players."""
     players: list[Player] = field(default_factory=list)
@@ -73,6 +65,18 @@ class PlayerGroup:
         :type player: Player
         """
         self.players.append(player)
+
+    def get_current_player(self, index: int) -> Player:
+        """
+        :type index: int
+        """
+        return self.players[index]
+
+    def get_next_player_index(self, index: int) -> int:
+        """
+        :type index: int
+        """
+        return (index + 1) % len(self.players)
 
 # repeat=0 means a single-step move.
 # Larger values allow sliding multiple squares
@@ -91,7 +95,6 @@ class PieceType:
     name: str
     moves: tuple[MovePattern, ...]
 
-
 class Piece:
     """Represents a piece."""
 
@@ -107,24 +110,6 @@ class Piece:
         self.x = x
         self.y = y
 
-    # Checks whether a target coordinate matches one
-    # of the piece's movement patterns.
-    # This function only validates movement geometry,
-    # not game rules such as blocking pieces.
-    def can_move_to(self, x: int, y: int) -> bool:
-        """Returns if the piece can be moved to the given coordinates.
-        :type x: int
-        :type y: int
-        """
-        for move in self.piece_type.moves:
-            for step in range(1, move.repeat + 2):
-                if (
-                        self.x + step * move.dx == x
-                        and self.y + step * move.dy == y
-                ):
-                    return True
-        return False
-
     def get_player(self) -> Player:
         """Returns the player of the piece."""
         return self.player
@@ -139,7 +124,7 @@ class Piece:
         """Returns the color of the piece."""
         return self.player.color
 
-@dataclass(frozen=True)
+@dataclass
 class PieceGroup:
     """Represents all pieces."""
     piece_list: list = field(default_factory=list)
@@ -180,7 +165,7 @@ class PieceGroup:
 
             # Render the piece by drawing several nested hexagons to create a
             # stylized game piece appearance.
-            for scale, color, width in (tuple((0.08 * m, fill_color, 4) for m in range(6)) + ((0.48, outline_color, 3),)):
+            for scale, color, width in (tuple((0.08 * m, fill_color, 2) for m in range(6)) + ((0.48, outline_color, 3),)):
                 pygame.draw.lines(
                     screen,
                     color,
@@ -192,8 +177,8 @@ class PieceGroup:
                     ],
                     width
                 )
-            pygame.draw.ellipse(screen, background_color,(center_x - 0.4 * SQUARE_SIZE, center_y-0.12 * SQUARE_SIZE,
-                                                          0.8 * SQUARE_SIZE, 0.24 * SQUARE_SIZE))
+            pygame.draw.ellipse(screen, background_color,(center_x - 0.4 * SQUARE_SIZE, center_y-0.20 * SQUARE_SIZE,
+                                                          0.8 * SQUARE_SIZE, 0.40 * SQUARE_SIZE))
             # Render the piece name
             label = PIECE_FONT.render(
                 piece.piece_type.name.upper(),
@@ -208,6 +193,15 @@ class PieceGroup:
             screen.blit(label, label_rect)
 
 
+@dataclass
+class Game:
+    screen: pygame.Surface
+    players: PlayerGroup | None = None
+    pieces: PieceGroup | None = None
+    selected_piece: Piece | None = None
+    allowed_moves: list = field(default_factory=list)
+    buttons: list = field(default_factory=list)
+    current_player_index: int = 0
 
 # Helper functions
 def get_piece_at_position(x: int, y: int, game: Game) -> Piece | None:
@@ -216,6 +210,10 @@ def get_piece_at_position(x: int, y: int, game: Game) -> Piece | None:
     :type y: int
     :type game: Game
     """
+    # Make sure game.pieces exists
+    if game.pieces is None:
+        return None
+    
     for piece in game.pieces.piece_list:
         if piece.x == x and piece.y == y:
             return piece
@@ -223,19 +221,30 @@ def get_piece_at_position(x: int, y: int, game: Game) -> Piece | None:
 
 # Generates all board coordinates that match the
 # movement pattern of the selected piece.
-# Does not currently check for collisions,
-# captures, or board occupancy.
-def get_allowed_moves(piece: Piece):
+# Checks for collisions but not final space occupancy
+# Capture resolution is handled when the move is executed.
+def get_allowed_moves(piece: Piece, game: Game) -> list:
     """
     :type piece: Piece
+    :type game: Game
     """
     moves = []
 
-    for y in range(BOARD_SIZE):
-        for x in range(BOARD_SIZE):
-            if piece.can_move_to(x, y):
-                moves.append((x, y))
+    # For every move the piece can take:
+    for move in piece.piece_type.moves:
+        for step in range(1, move.repeat + 2):
+            new_x, new_y = piece.x + step * move.dx, piece.y + step * move.dy
 
+            if not get_piece_at_position(new_x, new_y, game):
+                # Add the move to allowed moves
+                moves.append((new_x, new_y))
+
+            elif get_piece_at_position(new_x, new_y, game).player != piece.player:
+                moves.append((new_x, new_y))
+
+            # Block a piece from showing that it can move further if this step ended on a different piece
+            if get_piece_at_position(new_x, new_y, game):
+                break
     return moves
 
 
@@ -243,7 +252,7 @@ def get_allowed_moves(piece: Piece):
 # ----------------------------
 # Generic Button Callback
 # ----------------------------
-def generic_action(button_name):
+def generic_action(button_name: str) -> None:
     """
     :type button_name: str
     """
@@ -262,7 +271,7 @@ class Button:
         self.text = text
         self.callback = callback
 
-    def draw(self, surface):
+    def draw(self, surface: pygame.Surface) -> None:
         """
         :type surface: pygame.Surface
         """
@@ -279,7 +288,7 @@ class Button:
 
         surface.blit(text_surface, text_rect)
 
-    def handle_event(self, event):
+    def handle_event(self, event: pygame.event.Event) -> None:
         """
         :type event: pygame.event.Event
         """
@@ -291,7 +300,7 @@ class Button:
 # ----------------------------
 # Chess Board Drawing
 # ----------------------------
-def draw_chess_board(surface):
+def draw_chess_board(surface: pygame.Surface) -> None:
     """
     :type surface: pygame.Surface
     """
@@ -309,7 +318,7 @@ def draw_chess_board(surface):
                 ),
             )
 
-def setup_menu(game: Game):
+def setup_menu(game: Game) -> None:
     """
     :type game: Game
     """
@@ -356,14 +365,22 @@ def setup(game: Game) -> None:
     # Create two players with different colors
     player1 = Player("Alice", Color(red=255, green=0, blue=0))  # Red
     player2 = Player("Bob", Color(red=0, green=0, blue=255))  # Blue
+    player3 = Player("AI1", Color(red=255, green=0, blue=255))  # Magenta
+    player4 = Player("AI2", Color(red=0, green=255, blue=0))  # Green
+
+    game.current_player_index = 0
 
     # Create the player group
     game.players = PlayerGroup()
     game.players.add_player(player1)
     game.players.add_player(player2)
+    game.players.add_player(player3)
+    game.players.add_player(player4)
 
     # Define the possible moves
-    pawn_moves = ((0, 1), (0, -1)) # temporarily allow pawns to move backwards for both players to be able to work
+    vertical_moves = ((0, 1), (0, -1)) # allows pawns to move backwards and forwards
+    horizontal_moves = ((1, 0), (-1, 0))
+    grid_moves = vertical_moves + horizontal_moves
     orthogonal = ((0, 1), (1, 0), (0, -1), (-1, 0))
     diagonal = ((1, 1), (-1, -1), (1, -1), (-1, 1))
     king_moves = orthogonal + diagonal
@@ -372,7 +389,7 @@ def setup(game: Game) -> None:
 
     # Converts movement vectors into MovePattern objects
     # with a common repeat count.
-    def build_move_patterns(vectors: tuple[tuple[int, int], ...], repeat: int):
+    def build_move_patterns(vectors: tuple[tuple[int, int], ...], repeat: int) -> tuple[MovePattern, ...]:
         """
         :type vectors: tuple[tuple[int, int], ...]
         :type repeat: int
@@ -380,49 +397,64 @@ def setup(game: Game) -> None:
         return tuple(MovePattern(dx=dx, dy=dy, repeat=repeat) for dx, dy in vectors)
 
 
-    pawn_type = PieceType("Pawn", build_move_patterns(pawn_moves, 0))
-    queen_type = PieceType("Queen", build_move_patterns(king_moves,7))
-    bishop_type = PieceType("Bishop", build_move_patterns(diagonal, 7))
-    rook_type = PieceType("Rook", build_move_patterns(orthogonal, 7))
+    lv1_pawn_type = PieceType("Pawn1", build_move_patterns(vertical_moves, 0))
+    queen_type = PieceType("Queen", build_move_patterns(king_moves,BOARD_SIZE - 1))
+    bishop_type = PieceType("Bishop", build_move_patterns(diagonal, BOARD_SIZE - 1))
+    rook_type = PieceType("Rook", build_move_patterns(orthogonal, BOARD_SIZE - 1))
     king_type = PieceType("King", build_move_patterns(king_moves, 0))
     knight_type = PieceType("Knight", build_move_patterns(knight_vectors, 0))
 
+    # Custom pieces
 
+    # Moves on a grid
+    lv2_pawn_type = PieceType("Pawn2", build_move_patterns(grid_moves, 0))
 
+    # Can move up to two squares in a line on a grid
+    lv3_pawn_type = PieceType("Pawn3", build_move_patterns(grid_moves, 1))
 
     # Create the piece group
     game.pieces = PieceGroup()
 
-    # Pawns
-    for y, player in ((1, player1), (6, player2)):
+    # Lv1 pawns
+    for y, player in ((1, player1), (10, player2)):
         for x in range(BOARD_SIZE):
             game.pieces.add_piece(
-                Piece(pawn_type, player, x, y)
+                Piece(lv1_pawn_type, player, x, y)
+            )
+
+    # Lv2 pawns - custom
+    for y, player in ((5, player3), (6, player4)):
+        for x in range(BOARD_SIZE):
+            game.pieces.add_piece(
+                Piece(lv2_pawn_type, player, x, y)
+            )
+
+    # Lv3 pawns - custom
+    for y, player in ((4, player3), (7, player4)):
+        for x in range(BOARD_SIZE):
+            game.pieces.add_piece(
+                Piece(lv3_pawn_type, player, x, y)
             )
 
 
     # This section creates symmetrical piece placement for both players.
     # Each tuple contains the columns where that piece type starts.
     starting_positions = {
-        rook_type: (0, 7),
+        rook_type: (0, 7, 8, 9, 10, 11),
         knight_type: (1, 6),
         bishop_type: (2, 5),
         king_type: (3,),
         queen_type: (4,),
     }
     # Other pieces
-    for y, player in ((0, player1), (7, player2)):
+    for y, player in ((0, player1), (11, player2)):
         for piece_type, columns in starting_positions.items():
             for x in columns:
                 game.pieces.add_piece(
                     Piece(piece_type, player, x, y)
                 )
 
-    # Set up the pygame screen
-    game.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-    pygame.display.set_caption("Chess Board with Menu")
-
-def main_loop(game: Game):
+def main_loop(game: Game) -> None:
     # ----------------------------
     # Main Loop
     # ----------------------------
@@ -448,11 +480,39 @@ def main_loop(game: Game):
                     # If a piece is selected, attempt move
                     if game.selected_piece:
                         # Move the selected piece if the destination
-                        # is one of its allowed moves.
-                        # Capturing and collision detection are not yet implemented.
+                        # Capturing is implemented.
+                        # Collision and path-blocking detection are still not implemented.
                         if (board_column, board_row) in game.allowed_moves:
-                            game.selected_piece.x = board_column
-                            game.selected_piece.y = board_row
+                            target = get_piece_at_position(board_column, board_row, game)
+
+                            move_completed = False
+
+                            if target is None:
+                                game.selected_piece.x = board_column
+                                game.selected_piece.y = board_row
+                                move_completed = True
+
+                            elif target.player != game.selected_piece.player:
+
+                                # Capture the opponent's piece
+                                game.pieces.remove_piece(target)
+
+                                # Move the attacking piece onto the captured piece's square
+                                game.selected_piece.x = board_column
+                                game.selected_piece.y = board_row
+                                move_completed = True
+
+                            elif target.player == game.selected_piece.player:
+                                # Cannot move onto a square occupied by your own piece
+                                pass
+
+                            if move_completed:
+                                game.current_player_index = (
+                                    game.players.get_next_player_index(
+                                        game.current_player_index
+                                    )
+                                )
+
 
                         # Deselect regardless of whether move succeeded
                         game.selected_piece = None
@@ -462,8 +522,16 @@ def main_loop(game: Game):
                         piece = get_piece_at_position(board_column, board_row, game)
 
                         if piece:
-                            game.selected_piece = piece
-                            game.allowed_moves = get_allowed_moves(piece)
+                            current_player = game.players.get_current_player(
+                                game.current_player_index
+                            )
+
+                            if piece.belongs_to_player(current_player):
+                                game.selected_piece = piece
+                                game.allowed_moves = get_allowed_moves(piece, game)
+
+        # Set up the pygame screen caption
+        pygame.display.set_caption("Chess like game, with new pieces")
 
         # Background
         game.screen.fill((0, 0, 0))
@@ -484,14 +552,14 @@ def main_loop(game: Game):
                 # for the currently selected piece.
                 pygame.draw.circle(
                     game.screen,
-                    (0, 255, 0),
+                    MOVE_MARKER_COLOR,
                     center,
                     SQUARE_SIZE // 8,
                 )
             # Highlight the selected piece with a yellow border.
             pygame.draw.rect(
                 game.screen,
-                (255, 255, 0),
+                SELECTION_COLOR,
                 (
                     game.selected_piece.x * SQUARE_SIZE,
                     game.selected_piece.y * SQUARE_SIZE,
@@ -511,6 +579,26 @@ def main_loop(game: Game):
         for button in game.buttons:
             button.draw(game.screen)
 
+        # Current player's turn indicator
+        current_player = game.players.get_current_player(
+            game.current_player_index
+        )
+
+        turn_text = MENU_FONT.render(
+            f"{current_player.name}'s Turn",
+            True,
+            current_player.get_rgb_color()
+        )
+
+        turn_rect = turn_text.get_rect(
+            center=(
+                BOARD_WIDTH + MENU_WIDTH // 2,
+                30 + len(game.buttons) * (50 + 15) + 30
+            )
+        )
+
+        game.screen.blit(turn_text, turn_rect)
+
         pygame.display.flip()
         clock.tick(60)
 
@@ -520,6 +608,6 @@ if __name__ == "__main__":
     MENU_FONT = pygame.font.SysFont(FONT_NAME, MENU_FONT_SIZE)
     PIECE_FONT = pygame.font.SysFont(FONT_NAME, PIECE_FONT_SIZE)
 
-    g = Game()
+    g = Game(pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT)))
     setup(g)
     main_loop(g)
