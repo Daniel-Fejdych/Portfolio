@@ -13,14 +13,17 @@ from PyQt6.QtWidgets import (
 )
 from functools import partial
 
+tick_prices = []
+
 if __name__ == '__main__':
-    tickers = yf.Tickers('MSFT AAPL GOOG') # Use tickers.live() for live responses later.
-    for tick in tickers.ws:
-        print(tick)
-#        print(price)
+    ticks = ['MSFT', 'AAPL', 'GOOG', 'NVDA', 'META', 'TSLA', 'AVGO', 'JPM', 'WMT', 'SHEL']
+    for tick in ticks:
+        ticker = yf.Ticker(tick)  # Use tickers.live() for live responses later.
+        tick_prices.append(ticker.info["regularMarketPrice"])
+        print(tick_prices)
 
 
-
+SIZE = 10
 
 
 class MainWindow(QWidget):
@@ -32,24 +35,24 @@ class MainWindow(QWidget):
 
         layout = QVBoxLayout(self)
 
-        # Example 20-element lists
-        self.list1 = [f"Item1-{i}" for i in range(20)]
-        self.list2 = [f"Item2-{i}" for i in range(20)]
-        self.list3 = [f"Item3-{i}" for i in range(20)]
+        # Example Size-element lists
+        self.list1 = ticks
+        self.list2 = tick_prices
+        self.list3 = [f"Item3-{i}" for i in range(SIZE)]
 
         self.table = QTableWidget()
-        self.table.setRowCount(20)
+        self.table.setRowCount(SIZE)
         self.table.setColumnCount(5)
         self.table.setHorizontalHeaderLabels(
-            ["Stock Name", "Stock Price", "Current Stock", "Amount", "Actions"]
+            ["Stock Name", "Stock Price $", "Current Stock", "Amount", "Actions"]
         )
 
         self.line_edits = []
 
-        for row in range(20):
+        for row in range(SIZE):
             # List values
             self.table.setItem(row, 0, QTableWidgetItem(self.list1[row]))
-            self.table.setItem(row, 1, QTableWidgetItem(self.list2[row]))
+            self.table.setItem(row, 1, QTableWidgetItem(str(self.list2[row])))
             self.table.setItem(row, 2, QTableWidgetItem(self.list3[row]))
 
             # Text box
