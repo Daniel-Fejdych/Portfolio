@@ -1,0 +1,16 @@
+{
+    "name": "Gerry",
+    "funds": 10000,
+    "holdings": {
+        "MSFT": 0,
+        "AAPL": 0,
+        "GOOG": 0,
+        "NVDA": 0,
+        "META": 0,
+        "TSLA": 0,
+        "AVGO": 0,
+        "JPM": 0,
+        "WMT": 0,
+        "SHEL": 0
+    }
+}
