@@ -1,2 +1,2 @@
 ## Description
-This section will hold all my Python projects.
+This section will hold all my personal Python projects.
