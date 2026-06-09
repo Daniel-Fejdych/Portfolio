@@ -1,0 +1,26 @@
+{
+  "machines": [
+    {
+      "id": "furnace",
+      "inputSize": 8,
+	  "outputSize": 8,
+      "recipes": [
+        "universal_smelting"
+      ]
+    },
+    {
+      "id": "press",
+		"inputSize": 8,
+		"outputSize": 8,
+      "recipes": [
+        "ingot_to_plate"
+      ]
+    },
+    {
+      "id": "miner",
+		"inputSize": 8,
+		"outputSize": 8,
+      "recipes": []
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "recipes": [
+	{
+	  "id": "universal_smelting",
+	  "inputs": [
+	    {
+	      "tag": "Smeltable",
+	      "state": "ORE",
+	      "amount": 1
+	    }
+	  ],
+	  "stateTransform": {
+	    "from": "ORE",
+	    "to": "INGOT"
+	  },
+	  "craftTime": 120
+	},
+	{
+	  "id": "ingot_to_plate",
+	  "inputs": [
+	    {
+	      "tag": "Can be made into plates",
+	      "state": "INGOT",
+	      "amount": 2
+	    }
+	  ],
+	  "stateTransform": {
+	    "from": "INGOT",
+	    "to": "PLATE"
+	  },
+	  "craftTime": 60
+	}  ,
+  	{
+  	  "id": "iron_to_copper",
+  	  "inputs": [
+  	    {
+  	      "item": "iron",
+  	      "state": "INGOT",
+  	      "amount": 1
+  	    }
+  	  ],
+  	  "outputs": {
+	  	"copper": 1
+  	  },
+  	  "craftTime": 60
+  	}
+  ]
+}

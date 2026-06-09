@@ -1,0 +1,69 @@
+{
+  "items": [
+    {
+      "id": "iron",
+      "name": "Iron",
+      "maxStack": 100,
+      "tags": ["Smeltable", "Meltable", "Can be made into plates"],
+      "states": ["ORE", "INGOT", "MOLTEN", "PLATE"]
+    },
+    {
+      "id": "copper",
+      "name": "Copper",
+      "maxStack": 100,
+      "tags": ["Smeltable", "Meltable", "Can be made into wires"],
+      "states": ["ORE", "INGOT", "MOLTEN", "WIRE"]
+    },
+	{
+      "id": "gold",
+      "name": "Gold",
+      "maxStack": 100,
+      "tags": ["Smeltable", "Meltable", "Can be made into plates"],
+      "states": ["ORE", "INGOT", "MOLTEN", "PLATE"]
+    },
+    {
+      "id": "silver",
+      "name": "Silver",
+      "maxStack": 100,
+      "tags": ["Smeltable", "Meltable", "Can be made into wires"],
+      "states": ["ORE", "INGOT", "MOLTEN", "WIRE"]
+    },
+    {
+      "id": "coal",
+      "name": "Coal",
+      "maxStack": 100,
+      "tags": ["Fuel", "Can be crushed", "Can be refined"],
+      "states": ["ORE", "DUST", "CHUNK"]
+    },
+	{
+	  "id": "diamond",
+	  "name": "Diamond",
+	  "maxStack": 100,
+	  "tags": ["Can be cut"],
+	  "states": ["ORE", "GEM"]
+	},
+    {
+      "id": "ruby",
+      "name": "Ruby",
+      "maxStack": 100,
+      "tags": ["Can be cut", "Can be crushed"],
+      "states": ["ORE", "GEM", "DUST"]
+    },
+	{
+	  "id": "glass",
+	  "name": "Glass",
+	  "maxStack": 10,
+	  "tags": ["Meltable", "Can be made into rods"],
+	  "states": ["PANE", "MOLTEN", "ROD"]
+	}  ,
+      {
+        "id": "stone",
+        "name": "Stone",
+        "maxStack": 200,
+        "tags": [],
+        "states": ["RAW"]
+      }
+    ]
+}
+
+
