@@ -27,3 +27,6 @@ https://github.com/Tomukas10/G5-soft-eng.git
 
 Link to my Year 4 Dissertation project, focused on creating, testing, and evaluating an LLM based AI tutor to teach students how to program in Python:
 https://github.com/Daniel-Fejdych/Year-4-Dissertation-Project.git
+
+Link to an extension of my Year 4 Dissertation project, focused on improving usability, and adding more usable languages (TBC):
+https://github.com/Daniel-Fejdych/Year-4-Dissertation-Project-Extension.git
