@@ -1,0 +1,134 @@
+# =====================================================================
+# Factory Builder configuration file
+# ---------------------------------------------------------------------
+# Lines starting with '#' are comments. Blank lines are ignored.
+# Sections are marked with [section_name].
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# RESOURCES
+# Each line is a resource name. Resources should be declared here to
+# document what the factory handles.
+# ---------------------------------------------------------------------
+[resources]
+# Raw ores
+stone
+coal
+copper_ore
+iron_ore
+gold_ore
+
+# Copper chain
+copper_brick
+copper_bar
+copper_plate
+copper_gear
+
+# Iron chain
+iron_bar
+iron_plate
+iron_gear
+
+# Steel chain
+steel_bar
+steel_plate
+steel_gear
+
+# Gold chain
+gold_bar
+gold_plate
+gold_gear
+
+# ---------------------------------------------------------------------
+# RECIPES
+# Format:  <name>: output=<resource>, input=<resource>:<count>, time=<ticks>
+# Multiple 'input=' entries are allowed (one per ingredient).
+# ---------------------------------------------------------------------
+[recipes]
+# Copper chain
+copper_brick:  output=copper_brick,  input=copper_ore:1, input=stone:1, time=15
+copper_bar:    output=copper_bar,    input=copper_ore:2,               time=30
+copper_plate:  output=copper_plate,  input=copper_bar:2,               time=60
+copper_gear:   output=copper_gear,   input=copper_plate:1, input=copper_brick:1, time=120
+
+# Iron chain
+iron_bar:      output=iron_bar,      input=iron_ore:2,                 time=120
+iron_plate:    output=iron_plate,    input=iron_bar:2,                 time=240
+iron_gear:     output=iron_gear,     input=iron_plate:1, input:copper_gear:1. time=240
+
+# Steel chain
+steel_bar:     output=steel_bar,     input=iron_ore:3, input=coal:1,   time=240
+steel_plate:   output=steel_plate,   input=steel_bar:2,                time=480
+steel_gear:    output=steel_gear,    input=steel_plate:1, input:iron_gear:1. time=480
+
+# Gold chain
+gold_bar:      output=gold_bar,      input=gold_ore:2, input=coal:2,  time=480
+gold_plate:    output=gold_plate,    input=gold_bar:2,                 time=960
+gold_gear:     output=gold_gear,     input=gold_plate:1, input:steel_gear:1, time=960
+
+# ---------------------------------------------------------------------
+# BUILDINGS
+# Format:  <key>: class=<ClassName>, display=<name>, color=<r:g:b>,
+#                 hotkey=<key>, cost=<resource>:<count>, <param>=<value>, ...
+#
+# <ClassName> must be one of:
+#   Belt, Miner, Assembler, Splitter, Merger, Chest, Sink, InventoryInput
+#
+# <name>       is the name displayed in the menu.
+# <r:g:b>      is the color of the building in the menu, defined by its
+#              category.
+# <key>        is an optional hotkey for the most common buildings, but
+#              most buildings will not have one.
+# <resource>:<count> defines the cost to place down a building, in the
+#              format of the name of the resource and its amount.
+#
+# Extra params are passed to the class __init__. Per class:
+#   Belt:            (none)
+#   Miner:           produce_interval=<ticks>, output_resource=<resource>
+#   Assembler:       recipe_name=<recipe key>
+#   Splitter:        (none)
+#   Merger:          (none)
+#   Chest:           capacity=<n>
+#   Sink:            (none)
+#   InventoryInput:  (none)
+# ---------------------------------------------------------------------
+[buildings]
+# -- Logistics -------------------------------------------------------
+belt:            class=Belt,            display=Belt,           color=128:128:128, hotkey=1, cost=copper_bar:1
+splitter:        class=Splitter,        display=Splitter,       color=128:128:128, hotkey=2, cost=copper_bar:10
+merger:          class=Merger,          display=Merger,         color=128:128:128, hotkey=3, cost=copper_bar:10
+sink:            class=Sink,            display=Sink,           color=128:128:128, hotkey=4, cost=copper_plate:1
+inventory_input: class=InventoryInput,  display=Inventory Input,color=128:128:128, hotkey=5, cost=copper_plate:10
+
+# -- Storage ---------------------------------------------------------
+chest20:         class=Chest,           display=Chest 20,        color=180:140:80, capacity=20,  cost=iron_plate:10
+chest100:        class=Chest,           display=Chest 100,       color=180:140:80, capacity=100, cost=iron_plate:20
+chest500:        class=Chest,           display=Chest 500,       color=180:140:80, capacity=500, cost=iron_gear:20
+
+# -- Miners ----------------------------------------------------------
+miner_stone:     class=Miner,           display=Stone Miner,     color=139:69:19, output_resource=stone,      produce_interval=120, cost=stone:5
+miner_coal:      class=Miner,           display=Coal Miner,      color=139:69:19, output_resource=coal,       produce_interval=240, cost=stone:10
+miner_copper:    class=Miner,           display=Copper Miner,    color=139:69:19, output_resource=copper_ore, produce_interval=240, cost=stone:20
+miner_iron:      class=Miner,           display=Iron Miner,      color=139:69:19, output_resource=iron_ore,   produce_interval=480, cost=copper_bar:20
+miner_gold:      class=Miner,           display=Gold Miner,      color=139:69:19, output_resource=gold_ore,   produce_interval=960, cost=iron_gear:20
+
+# -- Copper assemblers ----------------------------------------------
+assembler_copper_brick: class=Assembler, display=Copper Brick Asm, color=70:130:180, recipe_name=copper_brick, cost=stone:20
+assembler_copper_bar:   class=Assembler, display=Copper Bar Asm,   color=70:130:180, recipe_name=copper_bar,   cost=copper_brick:20
+assembler_copper_plate: class=Assembler, display=Copper Plate Asm, color=70:130:180, recipe_name=copper_plate, cost=copper_bar:20
+assembler_copper_gear:  class=Assembler, display=Copper Gear Asm,  color=70:130:180, recipe_name=copper_gear,  cost=copper_plate:20
+
+# -- Iron assemblers ------------------------------------------------
+assembler_iron_bar:     class=Assembler, display=Iron Bar Asm,     color=70:130:180, recipe_name=iron_bar,     cost=copper_gear:20
+assembler_iron_plate:   class=Assembler, display=Iron Plate Asm,   color=70:130:180, recipe_name=iron_plate,   cost=iron_bar:20
+assembler_iron_gear:    class=Assembler, display=Iron Gear Asm,    color=70:130:180, recipe_name=iron_gear,    cost=iron_plate:20
+
+# -- Steel assemblers -----------------------------------------------
+assembler_steel_bar:    class=Assembler, display=Steel Bar Asm,    color=70:130:180, recipe_name=steel_bar,    cost=iron_gear:20
+assembler_steel_plate:  class=Assembler, display=Steel Plate Asm,  color=70:130:180, recipe_name=steel_plate,  cost=steel_bar:20
+assembler_steel_gear:   class=Assembler, display=Steel Gear Asm,   color=70:130:180, recipe_name=steel_gear,   cost=steel_plate:20
+
+# -- Gold assemblers ------------------------------------------------
+assembler_gold_bar:     class=Assembler, display=Gold Bar Asm,     color=70:130:180, recipe_name=gold_bar,     cost=steel_gear:20
+assembler_gold_plate:   class=Assembler, display=Gold Plate Asm,   color=70:130:180, recipe_name=gold_plate,   cost=gold_bar:20
+assembler_gold_gear:    class=Assembler, display=Gold Gear Asm,    color=70:130:180, recipe_name=gold_gear,    cost=gold_plate:20
