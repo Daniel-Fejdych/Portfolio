@@ -1,3 +1,4 @@
+import random
 from dataclasses import dataclass, field
 from math import cos, sin, tau
 
@@ -20,6 +21,8 @@ MENU_WIDTH = 220
 
 WINDOW_WIDTH = BOARD_WIDTH + MENU_WIDTH
 WINDOW_HEIGHT = BOARD_WIDTH
+
+NUMBER_AI_MOVES = 40
 
 LIGHT_SQUARE = (238, 238, 210)
 DARK_SQUARE = (118, 150, 86)
@@ -362,11 +365,12 @@ def setup(game: Game) -> None:
     game.selected_piece = None
     game.allowed_moves = []
 
-    # Create two players with different colors
+    # Create two players and one AI with different colors
     player1 = Player("Alice", Color(red=255, green=0, blue=0))  # Red
     player2 = Player("Bob", Color(red=0, green=0, blue=255))  # Blue
-    player3 = Player("AI1", Color(red=255, green=0, blue=255))  # Magenta
-    player4 = Player("AI2", Color(red=0, green=255, blue=0))  # Green
+    player3 = Player("AI1", Color(red=0, green=255, blue=0))  # Green
+    # Currently unused
+    # player4 = Player("AI2", Color(red=255, green=0, blue=255))  # Magenta
 
     game.current_player_index = 0
 
@@ -375,7 +379,6 @@ def setup(game: Game) -> None:
     game.players.add_player(player1)
     game.players.add_player(player2)
     game.players.add_player(player3)
-    game.players.add_player(player4)
 
     # Define the possible moves
     vertical_moves = ((0, 1), (0, -1)) # allows pawns to move backwards and forwards
@@ -423,14 +426,14 @@ def setup(game: Game) -> None:
             )
 
     # Lv2 pawns - custom
-    for y, player in ((5, player3), (6, player4)):
+    for y, player in ((5, player3), (6, player3)):
         for x in range(BOARD_SIZE):
             game.pieces.add_piece(
                 Piece(lv2_pawn_type, player, x, y)
             )
 
     # Lv3 pawns - custom
-    for y, player in ((4, player3), (7, player4)):
+    for y, player in ((4, player3), (7, player3)):
         for x in range(BOARD_SIZE):
             game.pieces.add_piece(
                 Piece(lv3_pawn_type, player, x, y)
@@ -440,11 +443,11 @@ def setup(game: Game) -> None:
     # This section creates symmetrical piece placement for both players.
     # Each tuple contains the columns where that piece type starts.
     starting_positions = {
-        rook_type: (0, 7, 8, 9, 10, 11),
-        knight_type: (1, 6),
-        bishop_type: (2, 5),
-        king_type: (3,),
-        queen_type: (4,),
+        rook_type: (0, 1, 10, 11),
+        knight_type: (2, 3, 8, 9),
+        bishop_type: (4, 7),
+        king_type: (5,),
+        queen_type: (6,),
     }
     # Other pieces
     for y, player in ((0, player1), (11, player2)):
@@ -468,6 +471,49 @@ def main_loop(game: Game) -> None:
 
             for button in game.buttons:
                 button.handle_event(event)
+
+            # Handle AI movement
+            if game.current_player_index > 1:
+                move_completed = True
+                current_player = game.players.get_current_player(
+                    game.current_player_index
+                )
+
+                # Allow NUMBER_AI_MOVES moves for the AI
+                for _ in range(NUMBER_AI_MOVES):
+                    # Check in case there are no more pieces to move.
+                    for i in range(BOARD_SIZE):
+                        for j in range(BOARD_SIZE):
+                            piece = get_piece_at_position(i, j, game)
+                            if piece and piece.player == current_player:
+                                move_completed = False
+                    # Select random piece.
+                    while not move_completed:
+                        random_x, random_y = random.randint(0, BOARD_SIZE - 1), random.randint(0, BOARD_SIZE - 1)
+                        piece = get_piece_at_position(random_x, random_y , game)
+
+
+                        if piece is not None and piece.player == current_player:
+                            moves = get_allowed_moves(piece, game)
+                            if moves:
+                                # Select random move if there are moves available.
+                                r_move = random.choice(moves)
+                                # Check if move is inbounds
+                                if 0 <= r_move[0] < BOARD_SIZE and 0 <= r_move[1] < BOARD_SIZE:
+                                    target_piece = get_piece_at_position(r_move[0], r_move[1], game)
+                                    # Cannot move onto a square occupied by your own piece
+                                    if target_piece is None or target_piece.player != current_player:
+                                        if target_piece:
+                                            # Capture the opponent's piece
+                                            game.pieces.remove_piece(target_piece)
+                                        piece.x = r_move[0]
+                                        piece.y = r_move[1]
+                                        move_completed = True
+                game.current_player_index = (
+                    game.players.get_next_player_index(
+                        game.current_player_index
+                    )
+                )
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_x, mouse_y = event.pos
